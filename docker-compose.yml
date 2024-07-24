@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      #      - GF_SERVER_ROOT_URL=http://my.grafana.server/
+      #      - GF_INSTALL_PLUGINS=grafana-clock-panel
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'grafana_storage:/var/lib/grafana'
+      - '/Users/lco47/IdeaProjects/grafana-local-olympics/datasources:/etc/grafana/provisioning/datasources'
+volumes:
+  grafana_storage: {}

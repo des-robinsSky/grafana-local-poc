@@ -1,0 +1,63 @@
+allprojects {
+    buildscript {
+        repositories {
+            maven {
+                url skyReleasesMirror
+            }
+            maven {
+                url skyReleasesRepo
+            }
+            maven {
+                url gradlePluginsMirror
+            }
+            maven {
+                url gradlePluginsRepo
+            }
+            maven {
+                url centralMirror
+            }
+            mavenCentral()
+        }
+    }
+    repositories {
+        maven {
+            url skyReleasesMirror
+        }
+        maven {
+            url skyReleasesRepo
+        }
+        maven {
+            url centralMirror
+        }
+        mavenCentral()
+    }
+}
+
+
+/**
+ * Used in the scmVersion config for axion-release
+ * Ensures that branch builds create unique image tags that can be linked to git history.
+ *
+ * If on master return the Axion version else return the commit id.
+ *
+ * Notes:
+ * - This is a decorator applied when reading the version and doesn't
+ *   change the tag pushed to origin. It only changes the version used
+ *   to tag the image by k8-plugin.
+ *
+ * - Axion provides a 'versionWithBranch' versionCreator but we don't
+ *   release branch versions (too noisy) so using commit id instead keeps
+ *   a link between version (used to tag the image) and branch history.
+ *
+ * - It's not possible to use Axion position.branch to check for master
+ *   because checkout is always by revision (Git plugin) which has branch HEAD.
+ *
+ * @param version: the Axion generated version
+ * @return the version to use
+ */
+def getCurrentVersion(version) {
+    def currentRevision = "git rev-parse HEAD".execute().text
+    def branch = "git branch -r --contains $currentRevision".execute().text
+    if (branch.contains("origin/master")) return version
+    return currentRevision.trim()
+}

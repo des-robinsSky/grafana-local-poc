@@ -1,0 +1,77 @@
+import com.sky.ovp.gradle.dashboard.publish.plugin.GrafanaFolderBackupTask
+import com.sky.ovp.gradle.dashboard.publish.plugin.GrafanaPublishTask
+
+def configs = [
+        ["Alto", 'Alto', 'alto'],
+        ["Arcus", 'Arcus', 'arcus'],
+        ["Eleos", 'Eleos', 'eleos'],
+        ["Klepto", 'Klepto', 'klepto'],
+        ["Lakitu", 'Lakitu', 'lakitu'],
+        ["Loki", 'Loki', 'loki'],
+        ["Paul", 'Paul McGuires OVP Dashboards', 'paul'],
+        ["Phoenix", 'Phoenix', 'phoenix'],
+        ["Pulsar", 'Pulsar', 'pulsar'],
+        ["OvpPlatformMonitoring", 'OVP Platform Monitoring', 'ovp_platform_monitoring'],
+        ["Stratos", 'Stratos', 'stratos'],
+        ["Wave", 'Wave', 'wave'],
+        ["Yoshi", 'yoshi', 'yoshi']
+]
+
+def backupAllTask = tasks.register('backupAllDashboards')
+
+for (config in configs) {
+    def taskPrefix = config[0]
+    def grafanaPath = config[1]
+    def backupDir = config[2]
+
+    def backupPath = "${project.projectDir}/../backups/${backupDir}"
+
+
+    def backupThisDashboard = tasks.register("backupDashboardsFor${taskPrefix}", GrafanaFolderBackupTask) {
+        it.config = dashboardPublish {
+            grafanaHost = 'https://grafana.tools.cosmic.sky'
+            grafanaDashboardsPath = backupPath
+            grafanaFolder = grafanaPath
+            grafanaForceNullIdsOnBackup = true
+        }
+    }
+
+    backupAllTask.configure {
+        dependsOn << backupThisDashboard
+    }
+
+    tasks.register("publishDashboardsFor${taskPrefix}", GrafanaPublishTask) {
+        it.config = dashboardPublish {
+            grafanaHost = 'https://grafana.tools.cosmic.sky'
+            grafanaDashboardsPath = backupPath
+            grafanaFolder = grafanaPath
+            grafanaForceNullIdsOnBackup = true
+        }
+    }
+
+    tasks.register("publishDashboardsFor${taskPrefix}LocalGrafana", GrafanaPublishTask) {
+        it.config = dashboardPublish {
+            grafanaHost = 'http://localhost:3000'
+            grafanaDashboardsPath = backupPath
+            grafanaFolder = grafanaPath
+            grafanaForceNullIdsOnBackup = true
+        }
+    }
+}
+
+
+tasks.register('backupPaulDashboards', GrafanaFolderBackupTask) {
+    config = dashboardPublish {
+        grafanaHost = 'https://grafana.tools.cosmic.sky'
+        grafanaDashboardsPath = "${project.projectDir}/../backups-paul_dashboards"
+        grafanaFolder = 'Paul McGuires OVP Dashboards'
+        grafanaForceNullIdsOnBackup = true
+    }
+}
+
+tasks.register('publishPaulDashboards', GrafanaPublishTask) {
+    grafanaHost = 'https://grafana.tools.cosmic.sky'
+    grafanaDashboardsPath = "${project.projectDir}/../backups-paul_dashboards"
+    grafanaFolder = 'Paul McGuires OVP Dashboards'
+    grafanaForceNullIdsOnBackup = true
+}
