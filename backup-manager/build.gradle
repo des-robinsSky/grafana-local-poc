@@ -24,8 +24,7 @@ for (config in configs) {
     def grafanaPath = config[1]
     def backupDir = config[2]
 
-    def backupPath = "${project.projectDir}/../backups/${backupDir}"
-
+    def backupPath = "${project.projectDir}/../backups/dashboards/${backupDir}"
 
     def backupThisDashboard = tasks.register("backupDashboardsFor${taskPrefix}", GrafanaFolderBackupTask) {
         it.config = dashboardPublish {
@@ -70,8 +69,10 @@ tasks.register('backupPaulDashboards', GrafanaFolderBackupTask) {
 }
 
 tasks.register('publishPaulDashboards', GrafanaPublishTask) {
-    grafanaHost = 'https://grafana.tools.cosmic.sky'
-    grafanaDashboardsPath = "${project.projectDir}/../backups-paul_dashboards"
-    grafanaFolder = 'Paul McGuires OVP Dashboards'
-    grafanaForceNullIdsOnBackup = true
+    it.config = dashboardPublish {
+        grafanaHost = 'https://grafana.tools.cosmic.sky'
+        grafanaDashboardsPath = "${project.projectDir}/../backups-paul_dashboards"
+        grafanaFolder = 'Paul McGuires OVP Dashboards'
+        grafanaForceNullIdsOnBackup = true
+    }
 }
